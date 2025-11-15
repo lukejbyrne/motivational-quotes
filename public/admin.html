@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Motivational Quotes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .admin-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius-large);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .admin-nav-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+        
+        .admin-nav-btn.active,
+        .admin-nav-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .admin-section {
+            display: none;
+            background: var(--surface-color);
+            border-radius: var(--border-radius-large);
+            padding: 2rem;
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .admin-section.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .quotes-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .quote-admin-card {
+            background: var(--background-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .quote-admin-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .quote-admin-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--gradient-accent);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+        
+        .back-link:hover {
+            color: var(--primary-dark);
+        }
+        
+        .search-admin {
+            margin-bottom: 2rem;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .pagination-btn:hover,
+        .pagination-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .bulk-actions {
+            background: var(--background-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .bulk-actions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .bulk-actions-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .quote-checkbox {
+            margin-right: 1rem;
+            transform: scale(1.2);
+        }
+        
+        .quote-admin-card.selected {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .advanced-search-panel h4 {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <a href="/" class="back-link">
+            ← Back to Website
+        </a>
+        
+        <div class="admin-header">
+            <h1>📊 Admin Panel</h1>
+            <p>Manage your motivational quotes collection</p>
+        </div>
+        
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalQuotes">-</div>
+                <div class="stat-label">Total Quotes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCategories">-</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalAuthors">-</div>
+                <div class="stat-label">Authors</div>
+            </div>
+        </div>
+        
+        <div class="admin-nav">
+            <button class="admin-nav-btn active" onclick="showSection('add-quote')">Add Quote</button>
+            <button class="admin-nav-btn" onclick="showSection('manage-quotes')">Manage Quotes</button>
+            <button class="admin-nav-btn" onclick="showSection('bulk-import')">Bulk Import</button>
+        </div>
+        
+        <div id="add-quote" class="admin-section active">
+            <h2>Add New Quote</h2>
+            <form id="addQuoteForm">
+                <div class="form-group">
+                    <label for="quoteText" class="form-label">Quote Text *</label>
+                    <textarea id="quoteText" class="form-textarea" placeholder="Enter the inspirational quote..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quoteAuthor" class="form-label">Author *</label>
+                    <input type="text" id="quoteAuthor" class="form-input" placeholder="Author name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quoteCategory" class="form-label">Category</label>
+                    <select id="quoteCategory" class="form-select">
+                        <option value="">Select a category</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quoteTags" class="form-label">Tags</label>
+                    <input type="text" id="quoteTags" class="form-input" placeholder="Comma-separated tags (e.g., success, motivation, life)">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Add Quote</button>
+            </form>
+        </div>
+        
+        <div id="manage-quotes" class="admin-section">
+            <h2>Manage Quotes</h2>
+            
+            <div class="search-admin">
+                <div class="search-input-group">
+                    <input type="text" id="adminSearchInput" class="search-input" placeholder="Search quotes, authors, or categories...">
+                    <button class="search-btn" onclick="searchQuotes()">🔍</button>
+                    <button class="advanced-search-toggle" id="adminAdvancedToggle" onclick="toggleAdminAdvancedSearch()">⚙️</button>
+                </div>
+                
+                <div class="advanced-search-panel" id="adminAdvancedPanel" style="display: none;">
+                    <h4>Advanced Search</h4>
+                    <div class="advanced-search-grid">
+                        <div class="form-group">
+                            <label for="adminAdvancedCategory">Category</label>
+                            <select id="adminAdvancedCategory" class="form-select">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminAdvancedAuthor">Author</label>
+                            <input type="text" id="adminAdvancedAuthor" class="form-input" placeholder="Author name">
+                        </div>
+                        <div class="form-group">
+                            <label for="adminAdvancedDateFrom">Date From</label>
+                            <input type="date" id="adminAdvancedDateFrom" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="adminAdvancedDateTo">Date To</label>
+                            <input type="date" id="adminAdvancedDateTo" class="form-input">
+                        </div>
+                    </div>
+                    <div class="advanced-search-actions">
+                        <button class="btn btn-primary" onclick="performAdminAdvancedSearch()">Search</button>
+                        <button class="btn btn-secondary" onclick="clearAdminAdvancedSearch()">Clear</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bulk-actions" id="bulkActions" style="display: none;">
+                <div class="bulk-actions-header">
+                    <span id="selectedCount">0 selected</span>
+                    <div class="bulk-actions-buttons">
+                        <button class="btn btn-secondary btn-small" onclick="selectAllQuotes()">Select All</button>
+                        <button class="btn btn-secondary btn-small" onclick="clearSelection()">Clear Selection</button>
+                        <button class="btn btn-danger btn-small" onclick="bulkDeleteQuotes()">Delete Selected</button>
+                        <button class="btn btn-primary btn-small" onclick="exportSelectedQuotes()">Export Selected</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quotes-grid" id="quotesGrid">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+            
+            <div class="pagination" id="pagination"></div>
+        </div>
+        
+        <div id="bulk-import" class="admin-section">
+            <h2>Bulk Import Quotes</h2>
+            <p>Import multiple quotes at once using JSON format.</p>
+            
+            <div class="form-group">
+                <label for="bulkData" class="form-label">JSON Data</label>
+                <textarea id="bulkData" class="form-textarea" style="min-height: 300px;" placeholder='[
+  {
+    "text": "Your quote text here",
+    "author": "Author Name",
+    "category": "Category",
+    "tags": "tag1,tag2,tag3"
+  }
+]'></textarea>
+            </div>
+            
+            <button onclick="bulkImport()" class="btn btn-primary">Import Quotes</button>
+            
+            <div style="margin-top: 2rem; padding: 1rem; background: var(--background-color); border-radius: var(--border-radius);">
+                <h4>Format Example:</h4>
+                <pre style="background: var(--surface-color); padding: 1rem; border-radius: var(--border-radius); overflow-x: auto;">
+[
+  {
+    "text": "The only way to do great work is to love what you do.",
+    "author": "Steve Jobs",
+    "category": "Success",
+    "tags": "work,passion,greatness"
+  },
+  {
+    "text": "Innovation distinguishes between a leader and a follower.",
+    "author": "Steve Jobs", 
+    "category": "Leadership",
+    "tags": "innovation,leadership"
+  }
+]</pre>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="adminToast" role="alert" aria-live="assertive"></div>
+    
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let allQuotes = [];
+        
+        async function loadStats() {
+            try {
+                const [quotesRes, categoriesRes, authorsRes] = await Promise.all([
+                    fetch('/api/quotes?limit=1'),
+                    fetch('/api/quotes/categories'),
+                    fetch('/api/quotes/authors')
+                ]);
+                
+                const quotesData = await quotesRes.json();
+                const categoriesData = await categoriesRes.json();
+                const authorsData = await authorsRes.json();
+                
+                if (quotesData.success) {
+                    document.getElementById('totalQuotes').textContent = quotesData.data.pagination.total;
+                }
+                
+                if (categoriesData.success) {
+                    document.getElementById('totalCategories').textContent = categoriesData.data.categories.length;
+                    populateCategorySelect(categoriesData.data.categories);
+                }
+                
+                if (authorsData.success) {
+                    document.getElementById('totalAuthors').textContent = authorsData.data.authors.length;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        function populateCategorySelect(categories) {
+            const select = document.getElementById('quoteCategory');
+            select.innerHTML = '<option value="">Select a category</option>';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                select.appendChild(option);
+            });
+        }
+        
+        function showSection(sectionId) {
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (sectionId === 'manage-quotes') {
+                loadQuotes();
+            }
+        }
+        
+        async function loadQuotes(page = 1, search = '') {
+            try {
+                let url = `/api/quotes?limit=10&offset=${(page - 1) * 10}`;
+                if (search) {
+                    url = `/api/quotes/search?q=${encodeURIComponent(search)}&limit=50`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allQuotes = data.data.quotes || [];
+                    displayQuotes(allQuotes);
+                    
+                    if (!search && data.data.pagination) {
+                        totalPages = Math.ceil(data.data.pagination.total / 10);
+                        currentPage = page;
+                        updatePagination();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading quotes:', error);
+                showToast('Failed to load quotes', 'error');
+            }
+        }
+        
+        let selectedQuotes = new Set();
+        
+        function displayQuotes(quotes) {
+            const grid = document.getElementById('quotesGrid');
+            
+            if (quotes.length === 0) {
+                grid.innerHTML = '<p>No quotes found.</p>';
+                updateBulkActions();
+                return;
+            }
+            
+            grid.innerHTML = quotes.map(quote => `
+                <div class="quote-admin-card ${selectedQuotes.has(quote.id) ? 'selected' : ''}" data-quote-id="${quote.id}">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <input type="checkbox" class="quote-checkbox" ${selectedQuotes.has(quote.id) ? 'checked' : ''} 
+                               onchange="toggleQuoteSelection(${quote.id}, this.checked)">
+                        <div style="flex: 1;">
+                            <blockquote class="quote-text">"${quote.text}"</blockquote>
+                            <cite class="quote-author">— ${quote.author}</cite>
+                            <div class="quote-category">${quote.category || 'General'}</div>
+                            <div class="quote-admin-actions">
+                                <button class="btn btn-secondary btn-small" onclick="editQuote(${quote.id})">Edit</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteQuote(${quote.id})">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateBulkActions();
+        }
+        
+        function toggleQuoteSelection(quoteId, isSelected) {
+            if (isSelected) {
+                selectedQuotes.add(quoteId);
+            } else {
+                selectedQuotes.delete(quoteId);
+            }
+            
+            const card = document.querySelector(`[data-quote-id="${quoteId}"]`);
+            if (card) {
+                card.classList.toggle('selected', isSelected);
+            }
+            
+            updateBulkActions();
+        }
+        
+        function updateBulkActions() {
+            const bulkActions = document.getElementById('bulkActions');
+            const selectedCount = document.getElementById('selectedCount');
+            
+            if (selectedQuotes.size > 0) {
+                bulkActions.style.display = 'block';
+                selectedCount.textContent = `${selectedQuotes.size} selected`;
+            } else {
+                bulkActions.style.display = 'none';
+            }
+        }
+        
+        function selectAllQuotes() {
+            const checkboxes = document.querySelectorAll('.quote-checkbox');
+            checkboxes.forEach(checkbox => {
+                if (!checkbox.checked) {
+                    checkbox.checked = true;
+                    const quoteId = parseInt(checkbox.closest('[data-quote-id]').dataset.quoteId);
+                    toggleQuoteSelection(quoteId, true);
+                }
+            });
+        }
+        
+        function clearSelection() {
+            selectedQuotes.clear();
+            const checkboxes = document.querySelectorAll('.quote-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.querySelectorAll('.quote-admin-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            updateBulkActions();
+        }
+        
+        async function bulkDeleteQuotes() {
+            if (selectedQuotes.size === 0) return;
+            
+            if (!confirm(`Are you sure you want to delete ${selectedQuotes.size} selected quotes?`)) {
+                return;
+            }
+            
+            let successCount = 0;
+            let errorCount = 0;
+            
+            for (const quoteId of selectedQuotes) {
+                try {
+                    const response = await fetch(`/api/quotes/${quoteId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        errorCount++;
+                    }
+                } catch (error) {
+                    errorCount++;
+                }
+            }
+            
+            showToast(`Bulk delete completed: ${successCount} deleted, ${errorCount} errors`, successCount > 0 ? 'success' : 'error');
+            
+            if (successCount > 0) {
+                clearSelection();
+                loadQuotes(currentPage);
+                loadStats();
+            }
+        }
+        
+        function exportSelectedQuotes() {
+            if (selectedQuotes.size === 0) return;
+            
+            const selectedQuoteData = allQuotes.filter(quote => selectedQuotes.has(quote.id));
+            const dataStr = JSON.stringify(selectedQuoteData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `selected-quotes-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            showToast(`Exported ${selectedQuotes.size} quotes`, 'success');
+        }
+        
+        function toggleAdminAdvancedSearch() {
+            const panel = document.getElementById('adminAdvancedPanel');
+            const toggle = document.getElementById('adminAdvancedToggle');
+            
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                toggle.classList.add('active');
+                populateAdminCategories();
+            } else {
+                panel.style.display = 'none';
+                toggle.classList.remove('active');
+            }
+        }
+        
+        async function populateAdminCategories() {
+            try {
+                const response = await fetch('/api/quotes/categories');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('adminAdvancedCategory');
+                    select.innerHTML = '<option value="">All Categories</option>';
+                    
+                    data.data.categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+        
+        async function performAdminAdvancedSearch() {
+            const filters = {
+                searchTerm: document.getElementById('adminSearchInput').value.trim(),
+                category: document.getElementById('adminAdvancedCategory').value,
+                author: document.getElementById('adminAdvancedAuthor').value.trim(),
+                dateFrom: document.getElementById('adminAdvancedDateFrom').value,
+                dateTo: document.getElementById('adminAdvancedDateTo').value
+            };
+            
+            Object.keys(filters).forEach(key => {
+                if (!filters[key]) delete filters[key];
+            });
+            
+            if (Object.keys(filters).length === 0) {
+                showToast('Please enter at least one search criteria', 'error');
+                return;
+            }
+            
+            try {
+                const params = new URLSearchParams(filters);
+                const response = await fetch(`/api/quotes/advanced-search?${params}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allQuotes = data.data.quotes;
+                    displayQuotes(allQuotes);
+                    document.getElementById('pagination').innerHTML = '';
+                    toggleAdminAdvancedSearch();
+                } else {
+                    showToast('Advanced search failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error performing advanced search:', error);
+                showToast('Advanced search failed', 'error');
+            }
+        }
+        
+        function clearAdminAdvancedSearch() {
+            document.getElementById('adminAdvancedCategory').value = '';
+            document.getElementById('adminAdvancedAuthor').value = '';
+            document.getElementById('adminAdvancedDateFrom').value = '';
+            document.getElementById('adminAdvancedDateTo').value = '';
+        }
+        
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+            
+            if (currentPage > 1) {
+                html += `<button class="pagination-btn" onclick="loadQuotes(${currentPage - 1})">Previous</button>`;
+            }
+            
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="loadQuotes(${i})">${i}</button>`;
+            }
+            
+            if (currentPage < totalPages) {
+                html += `<button class="pagination-btn" onclick="loadQuotes(${currentPage + 1})">Next</button>`;
+            }
+            
+            pagination.innerHTML = html;
+        }
+        
+        async function searchQuotes() {
+            const searchTerm = document.getElementById('adminSearchInput').value.trim();
+            await loadQuotes(1, searchTerm);
+        }
+        
+        document.getElementById('addQuoteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const quoteData = {
+                text: document.getElementById('quoteText').value.trim(),
+                author: document.getElementById('quoteAuthor').value.trim(),
+                category: document.getElementById('quoteCategory').value,
+                tags: document.getElementById('quoteTags').value.trim()
+            };
+            
+            try {
+                const response = await fetch('/api/quotes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(quoteData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Quote added successfully!', 'success');
+                    document.getElementById('addQuoteForm').reset();
+                    loadStats();
+                } else {
+                    showToast(data.message || 'Failed to add quote', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding quote:', error);
+                showToast('Failed to add quote', 'error');
+            }
+        });
+        
+        async function deleteQuote(id) {
+            if (!confirm('Are you sure you want to delete this quote?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/quotes/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Quote deleted successfully!', 'success');
+                    loadQuotes(currentPage);
+                    loadStats();
+                } else {
+                    showToast(data.message || 'Failed to delete quote', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting quote:', error);
+                showToast('Failed to delete quote', 'error');
+            }
+        }
+        
+        async function bulkImport() {
+            const bulkData = document.getElementById('bulkData').value.trim();
+            
+            if (!bulkData) {
+                showToast('Please enter JSON data', 'error');
+                return;
+            }
+            
+            try {
+                const quotes = JSON.parse(bulkData);
+                
+                if (!Array.isArray(quotes)) {
+                    showToast('Data must be an array of quotes', 'error');
+                    return;
+                }
+                
+                let successCount = 0;
+                let errorCount = 0;
+                
+                for (const quote of quotes) {
+                    try {
+                        const response = await fetch('/api/quotes', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(quote)
+                        });
+                        
+                        if (response.ok) {
+                            successCount++;
+                        } else {
+                            errorCount++;
+                        }
+                    } catch (error) {
+                        errorCount++;
+                    }
+                }
+                
+                showToast(`Import completed: ${successCount} success, ${errorCount} errors`, successCount > 0 ? 'success' : 'error');
+                
+                if (successCount > 0) {
+                    document.getElementById('bulkData').value = '';
+                    loadStats();
+                }
+            } catch (error) {
+                showToast('Invalid JSON format', 'error');
+            }
+        }
+        
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('adminToast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+        });
+        
+        document.getElementById('adminSearchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchQuotes();
+            }
+        });
+    </script>
+</body>
+</html>

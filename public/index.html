@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Discover inspiring motivational quotes to brighten your day. Find quotes by category, author, or search for specific themes.">
+    <meta name="keywords" content="motivational quotes, inspiration, daily quotes, success quotes, life quotes">
+    <meta name="author" content="Motivational Quotes">
+    
+    <title>Motivational Quotes - Daily Inspiration</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <meta property="og:title" content="Motivational Quotes - Daily Inspiration">
+    <meta property="og:description" content="Discover inspiring motivational quotes to brighten your day">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yoursite.com">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Motivational Quotes - Daily Inspiration">
+    <meta name="twitter:description" content="Discover inspiring motivational quotes to brighten your day">
+</head>
+<body>
+    <header class="header" role="banner">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <div class="nav-container">
+                <div class="logo">
+                    <h1>✨ Motivational Quotes</h1>
+                </div>
+                <div class="nav-links">
+                    <a href="#home" class="nav-link active" aria-current="page">Home</a>
+                    <a href="#search" class="nav-link">Search</a>
+                    <a href="#categories" class="nav-link">Categories</a>
+                    <a href="/admin" class="nav-link">Admin</a>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Toggle mobile menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main" role="main">
+        <section id="home" class="hero-section" aria-labelledby="hero-title">
+            <div class="container">
+                <div class="hero-content">
+                    <h2 id="hero-title" class="hero-title">Find Your Daily Inspiration</h2>
+                    <p class="hero-subtitle">Discover powerful quotes that motivate, inspire, and uplift your spirit every day.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="daily-quote-section" aria-labelledby="daily-quote-title">
+            <div class="container">
+                <h2 id="daily-quote-title" class="section-title">Quote of the Day</h2>
+                <div class="daily-quote-card" id="dailyQuoteCard">
+                    <div class="loading-spinner" id="dailyQuoteLoading" aria-label="Loading daily quote">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="quote-content" id="dailyQuoteContent" style="display: none;">
+                        <blockquote class="quote-text" id="dailyQuoteText"></blockquote>
+                        <cite class="quote-author" id="dailyQuoteAuthor"></cite>
+                        <div class="quote-category" id="dailyQuoteCategory"></div>
+                        <div class="quote-actions">
+                            <button class="btn btn-secondary" id="shareDailyQuote" aria-label="Share daily quote">
+                                📤 Share
+                            </button>
+                            <button class="btn btn-primary" id="getNewDailyQuote" aria-label="Get new daily quote">
+                                🔄 New Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-actions-section">
+            <div class="container">
+                <div class="quick-actions">
+                    <button class="action-btn" id="randomQuoteBtn" aria-label="Get random quote">
+                        🎲 Random Quote
+                    </button>
+                    <button class="action-btn" id="searchToggleBtn" aria-label="Toggle search">
+                        🔍 Search Quotes
+                    </button>
+                    <button class="action-btn" id="categoriesToggleBtn" aria-label="Browse categories">
+                        📚 Browse Categories
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="search" class="search-section" style="display: none;" aria-labelledby="search-title">
+            <div class="container">
+                <h2 id="search-title" class="section-title">Search Quotes</h2>
+                <div class="search-form">
+                    <div class="search-container">
+                        <div class="search-input-group">
+                            <input 
+                                type="text" 
+                                id="searchInput" 
+                                class="search-input" 
+                                placeholder="Search by keyword, author, or theme..."
+                                aria-label="Search quotes"
+                                autocomplete="off"
+                                aria-expanded="false"
+                                aria-haspopup="listbox"
+                                role="combobox"
+                            >
+                            <button class="search-btn" id="searchBtn" aria-label="Search">
+                                🔍
+                            </button>
+                            <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Voice search" title="Voice Search">
+                                🎤
+                            </button>
+                            <button class="advanced-search-toggle" id="advancedSearchToggle" aria-label="Toggle advanced search" title="Advanced Search">
+                                ⚙️
+                            </button>
+                        </div>
+                        <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="Search suggestions" style="display: none;"></div>
+                        <div class="advanced-search-panel" id="advancedSearchPanel" style="display: none;">
+                            <h3>Advanced Search</h3>
+                            <div class="advanced-search-grid">
+                                <div class="form-group">
+                                    <label for="advancedCategory">Category</label>
+                                    <select id="advancedCategory" class="form-select">
+                                        <option value="">All Categories</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="advancedAuthor">Author</label>
+                                    <input type="text" id="advancedAuthor" class="form-input" placeholder="Author name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="advancedTags">Tags</label>
+                                    <input type="text" id="advancedTags" class="form-input" placeholder="Comma-separated tags">
+                                </div>
+                                <div class="form-group">
+                                    <label for="advancedDateFrom">Date From</label>
+                                    <input type="date" id="advancedDateFrom" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="advancedDateTo">Date To</label>
+                                    <input type="date" id="advancedDateTo" class="form-input">
+                                </div>
+                            </div>
+                            <div class="advanced-search-actions">
+                                <button class="btn btn-primary" id="performAdvancedSearch">Search</button>
+                                <button class="btn btn-secondary" id="clearAdvancedSearch">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="search-results" id="searchResults" aria-live="polite"></div>
+            </div>
+        </section>
+
+        <section id="categories" class="categories-section" style="display: none;" aria-labelledby="categories-title">
+            <div class="container">
+                <h2 id="categories-title" class="section-title">Browse by Category</h2>
+                <div class="categories-grid" id="categoriesGrid">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div class="category-quotes" id="categoryQuotes" aria-live="polite"></div>
+            </div>
+        </section>
+
+        <section class="random-quote-section" id="randomQuoteSection" style="display: none;" aria-labelledby="random-quote-title">
+            <div class="container">
+                <h2 id="random-quote-title" class="section-title">Random Quote</h2>
+                
+                <div class="random-quote-controls">
+                    <div class="control-group">
+                        <label for="categoryFilter">Filter by Category:</label>
+                        <select id="categoryFilter" class="category-select">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="quoteCount">Number of Quotes:</label>
+                        <select id="quoteCount" class="count-select">
+                            <option value="1">1 Quote</option>
+                            <option value="3">3 Quotes</option>
+                            <option value="5">5 Quotes</option>
+                            <option value="10">10 Quotes</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn btn-primary" id="getRandomQuotes" aria-label="Get random quotes">
+                            🎲 Get Random Quotes
+                        </button>
+                    </div>
+                </div>
+
+                <div class="random-quotes-container" id="randomQuotesContainer">
+                    <div class="loading-spinner" id="randomQuoteLoading">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="random-quotes-grid" id="randomQuotesGrid" style="display: none;"></div>
+                </div>
+
+                <div class="quote-navigation" id="quoteNavigation" style="display: none;">
+                    <button class="btn btn-secondary" id="prevQuote" aria-label="Previous quote">
+                        ← Previous
+                    </button>
+                    <span class="quote-counter" id="quoteCounter">1 of 1</span>
+                    <button class="btn btn-secondary" id="nextQuote" aria-label="Next quote">
+                        Next →
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Motivational Quotes</h3>
+                    <p>Inspiring you every day with powerful quotes from great minds.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#search">Search</a></li>
+                        <li><a href="#categories">Categories</a></li>
+                        <li><a href="/admin">Admin</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Share</h4>
+                    <div class="social-links">
+                        <button class="social-btn" id="shareWebsite" aria-label="Share website">
+                            📤 Share Site
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Motivational Quotes. Spreading inspiration worldwide.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="share-modal" id="shareModal" role="dialog" aria-labelledby="shareModalTitle" aria-hidden="true">
+        <div class="share-modal-content">
+            <div class="share-modal-header">
+                <h3 id="shareModalTitle">Share Quote</h3>
+                <button class="close-btn" id="closeShareModal" aria-label="Close share modal">&times;</button>
+            </div>
+            <div class="share-modal-body">
+                <div class="quote-preview" id="shareQuotePreview"></div>
+                <div class="share-options">
+                    <button class="share-option" id="shareTwitter" aria-label="Share on Twitter">
+                        🐦 Twitter
+                    </button>
+                    <button class="share-option" id="shareFacebook" aria-label="Share on Facebook">
+                        📘 Facebook
+                    </button>
+                    <button class="share-option" id="shareLinkedIn" aria-label="Share on LinkedIn">
+                        💼 LinkedIn
+                    </button>
+                    <button class="share-option" id="copyQuote" aria-label="Copy quote to clipboard">
+                        📋 Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
