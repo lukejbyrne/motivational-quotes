@@ -37,7 +37,14 @@ class Database {
           is_featured BOOLEAN DEFAULT 0,
           featured_date DATE,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          source_title TEXT,
+          source_url TEXT,
+          source_type TEXT DEFAULT 'unknown',
+          verification_status TEXT DEFAULT 'pending',
+          quality_score INTEGER DEFAULT 5,
+          language TEXT DEFAULT 'en',
+          context_notes TEXT
         )
       `;
 
@@ -63,6 +70,23 @@ class Database {
         )
       `;
 
+      const createSourcesTable = `
+        CREATE TABLE IF NOT EXISTS sources (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          author TEXT,
+          publication_year INTEGER,
+          publisher TEXT,
+          isbn TEXT,
+          url TEXT,
+          source_type TEXT NOT NULL,
+          credibility_rating INTEGER DEFAULT 5,
+          description TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `;
+
       this.db.serialize(() => {
         this.db.run(createQuotesTable, (err) => {
           if (err) {
@@ -83,6 +107,14 @@ class Database {
         this.db.run(createAnalyticsTable, (err) => {
           if (err) {
             console.error('Error creating analytics table:', err.message);
+            reject(err);
+            return;
+          }
+        });
+
+        this.db.run(createSourcesTable, (err) => {
+          if (err) {
+            console.error('Error creating sources table:', err.message);
             reject(err);
             return;
           }

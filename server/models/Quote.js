@@ -319,14 +319,32 @@ class Quote {
   static async create(quoteData) {
     return new Promise((resolve, reject) => {
       const db = database.getDb();
-      const { text, author, category, tags } = quoteData;
+      const { 
+        text, 
+        author, 
+        category, 
+        tags, 
+        source_title, 
+        source_url, 
+        source_type = 'unknown', 
+        verification_status = 'pending', 
+        quality_score = 5, 
+        language = 'en', 
+        context_notes 
+      } = quoteData;
       
       const query = `
-        INSERT INTO quotes (text, author, category, tags)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO quotes (
+          text, author, category, tags, source_title, source_url, 
+          source_type, verification_status, quality_score, language, context_notes
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       
-      db.run(query, [text, author, category, tags], function(err) {
+      db.run(query, [
+        text, author, category, tags, source_title, source_url, 
+        source_type, verification_status, quality_score, language, context_notes
+      ], function(err) {
         if (err) {
           reject(err);
         } else {
@@ -339,15 +357,34 @@ class Quote {
   static async update(id, quoteData) {
     return new Promise((resolve, reject) => {
       const db = database.getDb();
-      const { text, author, category, tags } = quoteData;
+      const { 
+        text, 
+        author, 
+        category, 
+        tags, 
+        source_title, 
+        source_url, 
+        source_type, 
+        verification_status, 
+        quality_score, 
+        language, 
+        context_notes 
+      } = quoteData;
       
       const query = `
         UPDATE quotes 
-        SET text = ?, author = ?, category = ?, tags = ?, updated_at = CURRENT_TIMESTAMP
+        SET text = ?, author = ?, category = ?, tags = ?, source_title = ?, 
+            source_url = ?, source_type = ?, verification_status = ?, 
+            quality_score = ?, language = ?, context_notes = ?, 
+            updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `;
       
-      db.run(query, [text, author, category, tags, id], function(err) {
+      db.run(query, [
+        text, author, category, tags, source_title, source_url, 
+        source_type, verification_status, quality_score, language, 
+        context_notes, id
+      ], function(err) {
         if (err) {
           reject(err);
         } else {
@@ -427,6 +464,245 @@ class Quote {
           reject(err);
         } else {
           resolve(row.count);
+        }
+      });
+    });
+  }
+
+  static async getByVerificationStatus(status, limit = 20) {
+    return new Promise((resolve, reject) => {
+      const db = database.getDb();
+      const query = `
+        SELECT * FROM quotes 
+        WHERE verification_status = ? 
+        ORDER BY created_at DESC 
+        LIMIT ?
+      `;
+      
+      db.all(query, [status, limit], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  static async getByQualityScore(minScore, limit = 20) {
+    return new Promise((resolve, reject) => {
+      const db = database.getDb();
+      const query = `
+        SELECT * FROM quotes 
+        WHERE quality_score >= ? 
+        ORDER BY quality_score DESC, created_at DESC 
+        LIMIT ?
+      `;
+      
+      db.all(query, [minScore, limit], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  static async getBySourceType(sourceType, limit = 20) {
+    return new Promise((resolve, reject) => {
+      const db = database.getDb();
+      const query = `
+        SELECT * FROM quotes 
+        WHERE source_type = ? 
+        ORDER BY created_at DESC 
+        LIMIT ?
+      `;
+      
+      db.all(query, [sourceType, limit], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  static async checkForDuplicates(text, author) {
+    return new Promise((resolve, reject) => {
+      const db = database.getDb();
+      const query = `
+        SELECT * FROM quotes 
+        WHERE LOWER(TRIM(text)) = LOWER(TRIM(?)) 
+        AND LOWER(TRIM(author)) = LOWER(TRIM(?))
+      `;
+      
+      db.all(query, [text, author], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  static async findSimilarQuotes(text, threshold = 0.85) {
+    return new Promise((resolve, reject) => {
+      const db = database.getDb();
+      const query = 'SELECT * FROM quotes';
+      
+      db.all(query, [], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          const similar = rows.filter(quote => {
+            const similarity = this.calculateSimilarity(text.toLowerCase(), quote.text.toLowerCase());
+            return similarity >= threshold;
+          });
+          resolve(similar);
+        }
+      });
+    });
+  }
+
+  static calculateSimilarity(str1, str2) {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) {
+      return 1.0;
+    }
+    
+    const editDistance = this.levenshteinDistance(longer, shorter);
+    return (longer.length - editDistance) / longer.length;
+  }
+
+  static levenshteinDistance(str1, str2) {
+    const matrix = [];
+    
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+    
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+    
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+    
+    return matrix[str2.length][str1.length];
+  }
+
+  static async validateQuote(quoteData) {
+    const errors = [];
+    
+    if (!quoteData.text || quoteData.text.trim().length < 10) {
+      errors.push('Quote text must be at least 10 characters long');
+    }
+    
+    if (!quoteData.text || quoteData.text.trim().length > 1000) {
+      errors.push('Quote text must be less than 1000 characters');
+    }
+    
+    if (!quoteData.author || quoteData.author.trim().length < 2) {
+      errors.push('Author name must be at least 2 characters long');
+    }
+    
+    if (!quoteData.author || quoteData.author.trim().length > 100) {
+      errors.push('Author name must be less than 100 characters');
+    }
+    
+    if (quoteData.category && quoteData.category.length > 50) {
+      errors.push('Category must be less than 50 characters');
+    }
+    
+    if (quoteData.tags && quoteData.tags.length > 200) {
+      errors.push('Tags must be less than 200 characters');
+    }
+    
+    if (quoteData.quality_score && (quoteData.quality_score < 1 || quoteData.quality_score > 10)) {
+      errors.push('Quality score must be between 1 and 10');
+    }
+    
+    if (quoteData.verification_status && !['verified', 'pending', 'disputed'].includes(quoteData.verification_status)) {
+      errors.push('Verification status must be verified, pending, or disputed');
+    }
+    
+    if (quoteData.source_url && !this.isValidUrl(quoteData.source_url)) {
+      errors.push('Source URL must be valid');
+    }
+    
+    const duplicates = await this.checkForDuplicates(quoteData.text, quoteData.author);
+    if (duplicates.length > 0) {
+      errors.push('This quote already exists in the database');
+    }
+    
+    return errors;
+  }
+
+  static isValidUrl(string) {
+    try {
+      const url = new URL(string);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static async getVerificationStats() {
+    return new Promise((resolve, reject) => {
+      const db = database.getDb();
+      const query = `
+        SELECT 
+          verification_status,
+          COUNT(*) as count,
+          AVG(quality_score) as avg_quality
+        FROM quotes 
+        GROUP BY verification_status
+      `;
+      
+      db.all(query, [], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  static async getSourceTypeStats() {
+    return new Promise((resolve, reject) => {
+      const db = database.getDb();
+      const query = `
+        SELECT 
+          source_type,
+          COUNT(*) as count,
+          AVG(quality_score) as avg_quality
+        FROM quotes 
+        GROUP BY source_type
+        ORDER BY count DESC
+      `;
+      
+      db.all(query, [], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
         }
       });
     });

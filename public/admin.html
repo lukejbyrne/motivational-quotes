@@ -249,9 +249,14 @@
 </head>
 <body>
     <div class="admin-container">
-        <a href="/" class="back-link">
-            ← Back to Website
-        </a>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <a href="/" class="back-link">
+                ← Back to Website
+            </a>
+            <button class="theme-toggle" id="adminThemeToggle" aria-label="Toggle dark mode" title="Toggle theme">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
         
         <div class="admin-header">
             <h1>📊 Admin Panel</h1>
@@ -276,7 +281,9 @@
         <div class="admin-nav">
             <button class="admin-nav-btn active" onclick="showSection('add-quote')">Add Quote</button>
             <button class="admin-nav-btn" onclick="showSection('manage-quotes')">Manage Quotes</button>
+            <button class="admin-nav-btn" onclick="showSection('manage-sources')">Manage Sources</button>
             <button class="admin-nav-btn" onclick="showSection('bulk-import')">Bulk Import</button>
+            <button class="admin-nav-btn" onclick="showSection('quality-control')">Quality Control</button>
         </div>
         
         <div id="add-quote" class="admin-section active">
@@ -302,6 +309,57 @@
                 <div class="form-group">
                     <label for="quoteTags" class="form-label">Tags</label>
                     <input type="text" id="quoteTags" class="form-input" placeholder="Comma-separated tags (e.g., success, motivation, life)">
+                </div>
+                
+                <h3 style="margin: 2rem 0 1rem 0; color: var(--primary-color);">Source Attribution</h3>
+                
+                <div class="form-group">
+                    <label for="sourceTitle" class="form-label">Source Title</label>
+                    <input type="text" id="sourceTitle" class="form-input" placeholder="Book title, speech name, etc.">
+                </div>
+                
+                <div class="form-group">
+                    <label for="sourceUrl" class="form-label">Source URL</label>
+                    <input type="url" id="sourceUrl" class="form-input" placeholder="https://example.com/source">
+                </div>
+                
+                <div class="form-group">
+                    <label for="sourceType" class="form-label">Source Type</label>
+                    <select id="sourceType" class="form-select">
+                        <option value="unknown">Unknown</option>
+                        <option value="book">Book</option>
+                        <option value="speech">Speech</option>
+                        <option value="interview">Interview</option>
+                        <option value="article">Article</option>
+                        <option value="essay">Essay</option>
+                        <option value="biography">Biography</option>
+                        <option value="autobiography">Autobiography</option>
+                        <option value="letter">Letter</option>
+                        <option value="song">Song</option>
+                        <option value="proverb">Proverb</option>
+                        <option value="advertisement">Advertisement</option>
+                        <option value="collection">Collection</option>
+                        <option value="attribution">Attribution</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="verificationStatus" class="form-label">Verification Status</label>
+                    <select id="verificationStatus" class="form-select">
+                        <option value="pending">Pending</option>
+                        <option value="verified">Verified</option>
+                        <option value="disputed">Disputed</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="qualityScore" class="form-label">Quality Score (1-10)</label>
+                    <input type="number" id="qualityScore" class="form-input" min="1" max="10" value="5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="contextNotes" class="form-label">Context Notes</label>
+                    <textarea id="contextNotes" class="form-textarea" placeholder="Additional context about the quote..."></textarea>
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Add Quote</button>
@@ -403,6 +461,116 @@
     "tags": "innovation,leadership"
   }
 ]</pre>
+            </div>
+        </div>
+        
+        <div id="manage-sources" class="admin-section">
+            <h2>Manage Sources</h2>
+            <p>Manage source records and their credibility ratings.</p>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <button onclick="showAddSourceForm()" class="btn btn-primary">Add New Source</button>
+                <div class="search-input-group" style="width: 300px;">
+                    <input type="text" id="sourceSearchInput" class="search-input" placeholder="Search sources...">
+                    <button class="search-btn" onclick="searchSources()">🔍</button>
+                </div>
+            </div>
+            
+            <div id="addSourceForm" style="display: none; background: var(--background-color); padding: 2rem; border-radius: var(--border-radius); margin-bottom: 2rem;">
+                <h3>Add New Source</h3>
+                <form id="sourceForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="sourceFormTitle" class="form-label">Title *</label>
+                            <input type="text" id="sourceFormTitle" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sourceFormAuthor" class="form-label">Author</label>
+                            <input type="text" id="sourceFormAuthor" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="sourceFormType" class="form-label">Type *</label>
+                            <select id="sourceFormType" class="form-select" required>
+                                <option value="book">Book</option>
+                                <option value="speech">Speech</option>
+                                <option value="interview">Interview</option>
+                                <option value="article">Article</option>
+                                <option value="essay">Essay</option>
+                                <option value="biography">Biography</option>
+                                <option value="autobiography">Autobiography</option>
+                                <option value="letter">Letter</option>
+                                <option value="song">Song</option>
+                                <option value="proverb">Proverb</option>
+                                <option value="advertisement">Advertisement</option>
+                                <option value="collection">Collection</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sourceFormYear" class="form-label">Publication Year</label>
+                            <input type="number" id="sourceFormYear" class="form-input" min="-3000" max="2030">
+                        </div>
+                        <div class="form-group">
+                            <label for="sourceFormPublisher" class="form-label">Publisher</label>
+                            <input type="text" id="sourceFormPublisher" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="sourceFormCredibility" class="form-label">Credibility Rating (1-10)</label>
+                            <input type="number" id="sourceFormCredibility" class="form-input" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceFormUrl" class="form-label">URL</label>
+                        <input type="url" id="sourceFormUrl" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceFormDescription" class="form-label">Description</label>
+                        <textarea id="sourceFormDescription" class="form-textarea"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn btn-primary">Save Source</button>
+                        <button type="button" onclick="hideAddSourceForm()" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="sourcesGrid" class="quotes-grid">
+                <!-- Sources will be loaded here -->
+            </div>
+        </div>
+        
+        <div id="quality-control" class="admin-section">
+            <h2>Quality Control Dashboard</h2>
+            <p>Review and manage quote verification status and quality scores.</p>
+            
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-number" id="verifiedCount">-</div>
+                    <div class="stat-label">Verified Quotes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingCount">-</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="disputedCount">-</div>
+                    <div class="stat-label">Disputed Quotes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgQuality">-</div>
+                    <div class="stat-label">Avg Quality Score</div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                <button onclick="loadQuotesByStatus('pending')" class="btn btn-secondary">Review Pending</button>
+                <button onclick="loadQuotesByStatus('disputed')" class="btn btn-secondary">Review Disputed</button>
+                <button onclick="loadQuotesByQuality(6)" class="btn btn-secondary">High Quality (6+)</button>
+                <button onclick="loadQuotesByQuality(4, true)" class="btn btn-secondary">Low Quality (≤4)</button>
+                <button onclick="loadAllQuotesForReview()" class="btn btn-primary">All Quotes</button>
+            </div>
+            
+            <div id="qualityControlGrid" class="quotes-grid">
+                <!-- Quality control quotes will be loaded here -->
             </div>
         </div>
     </div>
@@ -853,8 +1021,51 @@
             }, 3000);
         }
         
+        // Theme Management for Admin Panel
+        function initAdminTheme() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.documentElement.classList.add('dark');
+                updateAdminThemeIcon(true);
+            } else {
+                document.documentElement.classList.remove('dark');
+                updateAdminThemeIcon(false);
+            }
+        }
+
+        function toggleAdminTheme() {
+            const darkMode = !document.documentElement.classList.contains('dark');
+            localStorage.setItem('darkMode', darkMode.toString());
+            
+            if (darkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            
+            updateAdminThemeIcon(darkMode);
+            showToast(`Switched to ${darkMode ? 'dark' : 'light'} mode`, 'info');
+        }
+
+        function updateAdminThemeIcon(isDark) {
+            const themeIcon = document.querySelector('.theme-icon');
+            if (themeIcon) {
+                themeIcon.textContent = isDark ? '☀️' : '🌙';
+            }
+            
+            const themeToggle = document.getElementById('adminThemeToggle');
+            if (themeToggle) {
+                themeToggle.setAttribute('aria-label', `Switch to ${isDark ? 'light' : 'dark'} mode`);
+                themeToggle.setAttribute('title', `Switch to ${isDark ? 'light' : 'dark'} mode`);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            initAdminTheme();
             loadStats();
+            
+            // Bind theme toggle
+            document.getElementById('adminThemeToggle').addEventListener('click', toggleAdminTheme);
         });
         
         document.getElementById('adminSearchInput').addEventListener('keypress', (e) => {
@@ -862,6 +1073,224 @@
                 searchQuotes();
             }
         });
+
+        // Source Management Functions
+        function showAddSourceForm() {
+            document.getElementById('addSourceForm').style.display = 'block';
+        }
+
+        function hideAddSourceForm() {
+            document.getElementById('addSourceForm').style.display = 'none';
+            document.getElementById('sourceForm').reset();
+        }
+
+        async function loadSources() {
+            try {
+                const response = await fetch('/api/sources');
+                const sources = await response.json();
+                
+                const sourcesGrid = document.getElementById('sourcesGrid');
+                sourcesGrid.innerHTML = sources.map(source => `
+                    <div class="quote-admin-card">
+                        <h4>${source.title}</h4>
+                        <p><strong>Author:</strong> ${source.author || 'Unknown'}</p>
+                        <p><strong>Type:</strong> ${source.source_type}</p>
+                        <p><strong>Year:</strong> ${source.publication_year || 'Unknown'}</p>
+                        <p><strong>Credibility:</strong> ${source.credibility_rating}/10</p>
+                        ${source.description ? `<p><strong>Description:</strong> ${source.description}</p>` : ''}
+                        ${source.url ? `<p><strong>URL:</strong> <a href="${source.url}" target="_blank">${source.url}</a></p>` : ''}
+                        <div class="quote-admin-actions">
+                            <button class="btn btn-small btn-secondary" onclick="editSource(${source.id})">Edit</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteSource(${source.id})">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showToast('Error loading sources: ' + error.message, 'error');
+            }
+        }
+
+        async function searchSources() {
+            const searchTerm = document.getElementById('sourceSearchInput').value;
+            try {
+                const response = await fetch(`/api/sources/search?q=${encodeURIComponent(searchTerm)}`);
+                const sources = await response.json();
+                
+                const sourcesGrid = document.getElementById('sourcesGrid');
+                sourcesGrid.innerHTML = sources.map(source => `
+                    <div class="quote-admin-card">
+                        <h4>${source.title}</h4>
+                        <p><strong>Author:</strong> ${source.author || 'Unknown'}</p>
+                        <p><strong>Type:</strong> ${source.source_type}</p>
+                        <p><strong>Credibility:</strong> ${source.credibility_rating}/10</p>
+                        <div class="quote-admin-actions">
+                            <button class="btn btn-small btn-secondary" onclick="editSource(${source.id})">Edit</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteSource(${source.id})">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showToast('Error searching sources: ' + error.message, 'error');
+            }
+        }
+
+        // Quality Control Functions
+        async function loadQualityStats() {
+            try {
+                const [verificationRes, qualityRes] = await Promise.all([
+                    fetch('/api/quotes/verification-stats'),
+                    fetch('/api/quotes')
+                ]);
+                
+                const verificationStats = await verificationRes.json();
+                const allQuotes = await qualityRes.json();
+                
+                // Update verification counts
+                const verifiedCount = verificationStats.find(s => s.verification_status === 'verified')?.count || 0;
+                const pendingCount = verificationStats.find(s => s.verification_status === 'pending')?.count || 0;
+                const disputedCount = verificationStats.find(s => s.verification_status === 'disputed')?.count || 0;
+                
+                document.getElementById('verifiedCount').textContent = verifiedCount;
+                document.getElementById('pendingCount').textContent = pendingCount;
+                document.getElementById('disputedCount').textContent = disputedCount;
+                
+                // Calculate average quality
+                const totalQuality = allQuotes.reduce((sum, quote) => sum + (quote.quality_score || 5), 0);
+                const avgQuality = allQuotes.length > 0 ? (totalQuality / allQuotes.length).toFixed(1) : '0';
+                document.getElementById('avgQuality').textContent = avgQuality;
+                
+            } catch (error) {
+                console.error('Error loading quality stats:', error);
+            }
+        }
+
+        async function loadQuotesByStatus(status) {
+            try {
+                const response = await fetch(`/api/quotes/verification-status/${status}`);
+                const quotes = await response.json();
+                displayQualityControlQuotes(quotes);
+            } catch (error) {
+                showToast('Error loading quotes by status: ' + error.message, 'error');
+            }
+        }
+
+        async function loadQuotesByQuality(score, isLessThan = false) {
+            try {
+                const response = await fetch('/api/quotes');
+                const allQuotes = await response.json();
+                
+                const filteredQuotes = allQuotes.filter(quote => {
+                    const qualityScore = quote.quality_score || 5;
+                    return isLessThan ? qualityScore <= score : qualityScore >= score;
+                });
+                
+                displayQualityControlQuotes(filteredQuotes);
+            } catch (error) {
+                showToast('Error loading quotes by quality: ' + error.message, 'error');
+            }
+        }
+
+        async function loadAllQuotesForReview() {
+            try {
+                const response = await fetch('/api/quotes');
+                const quotes = await response.json();
+                displayQualityControlQuotes(quotes);
+            } catch (error) {
+                showToast('Error loading quotes: ' + error.message, 'error');
+            }
+        }
+
+        function displayQualityControlQuotes(quotes) {
+            const grid = document.getElementById('qualityControlGrid');
+            grid.innerHTML = quotes.map(quote => `
+                <div class="quote-admin-card">
+                    <p><strong>"${quote.text}"</strong></p>
+                    <p><strong>Author:</strong> ${quote.author}</p>
+                    <p><strong>Category:</strong> ${quote.category || 'Uncategorized'}</p>
+                    <p><strong>Source:</strong> ${quote.source_title || 'No source'} (${quote.source_type || 'unknown'})</p>
+                    <p><strong>Status:</strong> 
+                        <span style="color: ${getStatusColor(quote.verification_status)}">
+                            ${quote.verification_status || 'pending'}
+                        </span>
+                    </p>
+                    <p><strong>Quality Score:</strong> ${quote.quality_score || 5}/10</p>
+                    ${quote.context_notes ? `<p><strong>Notes:</strong> ${quote.context_notes}</p>` : ''}
+                    <div class="quote-admin-actions">
+                        <select onchange="updateVerificationStatus(${quote.id}, this.value)" style="margin-right: 0.5rem;">
+                            <option value="pending" ${quote.verification_status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="verified" ${quote.verification_status === 'verified' ? 'selected' : ''}>Verified</option>
+                            <option value="disputed" ${quote.verification_status === 'disputed' ? 'selected' : ''}>Disputed</option>
+                        </select>
+                        <input type="number" min="1" max="10" value="${quote.quality_score || 5}" 
+                               onchange="updateQualityScore(${quote.id}, this.value)" 
+                               style="width: 60px; margin-right: 0.5rem;">
+                        <button class="btn btn-small btn-secondary" onclick="editQuote(${quote.id})">Edit</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteQuote(${quote.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'verified': return '#10b981';
+                case 'disputed': return '#ef4444';
+                case 'pending': return '#f59e0b';
+                default: return '#6b7280';
+            }
+        }
+
+        async function updateVerificationStatus(quoteId, status) {
+            try {
+                const response = await fetch(`/api/quotes/${quoteId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ verification_status: status })
+                });
+                
+                if (response.ok) {
+                    showToast('Verification status updated successfully', 'success');
+                    loadQualityStats();
+                } else {
+                    throw new Error('Failed to update verification status');
+                }
+            } catch (error) {
+                showToast('Error updating verification status: ' + error.message, 'error');
+            }
+        }
+
+        async function updateQualityScore(quoteId, score) {
+            try {
+                const response = await fetch(`/api/quotes/${quoteId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quality_score: parseInt(score) })
+                });
+                
+                if (response.ok) {
+                    showToast('Quality score updated successfully', 'success');
+                    loadQualityStats();
+                } else {
+                    throw new Error('Failed to update quality score');
+                }
+            } catch (error) {
+                showToast('Error updating quality score: ' + error.message, 'error');
+            }
+        }
+
+        // Enhanced showSection function to load appropriate data
+        const originalShowSection = showSection;
+        showSection = function(sectionId) {
+            originalShowSection(sectionId);
+            
+            // Load data when switching to specific sections
+            if (sectionId === 'manage-sources') {
+                loadSources();
+            } else if (sectionId === 'quality-control') {
+                loadQualityStats();
+                loadAllQuotesForReview();
+            }
+        };
     </script>
 </body>
 </html>

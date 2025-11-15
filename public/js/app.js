@@ -12,10 +12,13 @@ class MotivationalQuotesApp {
     this.suggestions = [];
     this.recognition = null;
     this.isListening = false;
+    this.darkMode = localStorage.getItem('darkMode') === 'true';
     this.init();
   }
 
   init() {
+    this.initTheme();
+    this.initAnimations();
     this.bindEvents();
     this.loadDailyQuote();
     this.loadCategories();
@@ -42,6 +45,14 @@ class MotivationalQuotesApp {
     document.getElementById('performAdvancedSearch').addEventListener('click', () => this.performAdvancedSearch());
     document.getElementById('clearAdvancedSearch').addEventListener('click', () => this.clearAdvancedSearch());
     document.getElementById('voiceSearchBtn').addEventListener('click', () => this.toggleVoiceSearch());
+    
+    // Theme toggle
+    document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
+    
+    // Initialize button feedback for all buttons
+    document.querySelectorAll('.btn, .action-btn').forEach(button => {
+      this.addButtonFeedback(button);
+    });
     
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -107,8 +118,12 @@ class MotivationalQuotesApp {
   }
 
   navigateToSection(section) {
+    const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => link.classList.remove('active'));
-    document.querySelector(`[href="#${section}"]`).classList.add('active');
+    const targetLink = document.querySelector(`[href="#${section}"]`);
+    if (targetLink) {
+      targetLink.classList.add('active');
+    }
     
     this.hideAllSections();
     
@@ -947,6 +962,145 @@ class MotivationalQuotesApp {
           }
         }
       });
+    }
+  }
+
+  // Animation System
+  initAnimations() {
+    // Intersection Observer for scroll animations
+    this.observeElements();
+    
+    // Add stagger animation to cards
+    this.addStaggerAnimations();
+    
+    // Initialize performance-optimized animations
+    this.initPerformanceAnimations();
+  }
+
+  observeElements() {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fade-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Observe elements that should animate on scroll
+    const elementsToObserve = document.querySelectorAll(
+      '.daily-quote-card, .action-btn, .quote-result, .category-card, .section-title'
+    );
+    
+    elementsToObserve.forEach(el => {
+      observer.observe(el);
+    });
+  }
+
+  addStaggerAnimations() {
+    const cards = document.querySelectorAll('.action-btn');
+    cards.forEach((card, index) => {
+      card.style.animationDelay = `${index * 0.1}s`;
+    });
+  }
+
+  initPerformanceAnimations() {
+    // Use transform and opacity for better performance
+    const style = document.createElement('style');
+    style.textContent = `
+      .animate-fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+      }
+      
+      .animate-slide-up {
+        animation: slideInUp 0.6s ease-out forwards;
+      }
+      
+      .animate-scale-in {
+        animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+      
+      /* Stagger animations */
+      .stagger-1 { animation-delay: 0.1s; }
+      .stagger-2 { animation-delay: 0.2s; }
+      .stagger-3 { animation-delay: 0.3s; }
+      .stagger-4 { animation-delay: 0.4s; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Enhanced button feedback
+  addButtonFeedback(button) {
+    button.addEventListener('mousedown', (e) => {
+      const ripple = document.createElement('span');
+      const rect = button.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+      
+      ripple.style.cssText = `
+        position: absolute;
+        width: ${size}px;
+        height: ${size}px;
+        left: ${x}px;
+        top: ${y}px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: scale(0);
+        animation: ripple 0.6s linear;
+        pointer-events: none;
+      `;
+      
+      button.style.position = 'relative';
+      button.style.overflow = 'hidden';
+      button.appendChild(ripple);
+      
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
+    });
+  }
+
+  // Theme Management
+  initTheme() {
+    if (this.darkMode) {
+      document.documentElement.classList.add('dark');
+      this.updateThemeIcon(true);
+    } else {
+      document.documentElement.classList.remove('dark');
+      this.updateThemeIcon(false);
+    }
+  }
+
+  toggleTheme() {
+    this.darkMode = !this.darkMode;
+    localStorage.setItem('darkMode', this.darkMode.toString());
+    
+    if (this.darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    this.updateThemeIcon(this.darkMode);
+    this.showToast(`Switched to ${this.darkMode ? 'dark' : 'light'} mode`, 'info');
+  }
+
+  updateThemeIcon(isDark) {
+    const themeIcon = document.querySelector('.theme-icon');
+    if (themeIcon) {
+      themeIcon.textContent = isDark ? '☀️' : '🌙';
+    }
+    
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      themeToggle.setAttribute('aria-label', `Switch to ${isDark ? 'light' : 'dark'} mode`);
+      themeToggle.setAttribute('title', `Switch to ${isDark ? 'light' : 'dark'} mode`);
     }
   }
 }
